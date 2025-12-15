@@ -80,6 +80,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 48,
     color: COLORS.textDark,
+    borderColor: "transparent",
   },
   eyeIcon: {
     padding: 8,

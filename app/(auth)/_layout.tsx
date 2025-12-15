@@ -1,6 +1,5 @@
-import { useAuthStore } from "@/store/authStore";
 import { Stack } from "expo-router";
 
-export default function Rootlayout(){
+export default function AuthLayout(){
     return <Stack screenOptions={{headerShown: false}}/>
 }
