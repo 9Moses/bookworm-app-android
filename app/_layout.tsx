@@ -1,41 +1,54 @@
+// app/_layout.tsx
 import SafeScreen from "@/components/safe-screen/safeScreen";
 import { useAuthStore } from "@/store/authStore";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { Stack, useRouter, useSegments } from "expo-router";
-import { useEffect } from "react";
+import { Slot, useRouter } from "expo-router"; // remove useSegments
+import { useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
-
-interface AuthStore {
-  checkAuth: () => void;
-  user: string;
-  token: string;
-}
+import { View, ActivityIndicator } from "react-native";
 
 export default function RootLayout() {
   const router = useRouter();
-  const segments = useSegments();
-  const { checkAuth, user, token }: AuthStore = useAuthStore() as AuthStore;
+  const { checkAuth, user, token, isLoading }: any = useAuthStore();
 
+  const [isReady, setIsReady] = useState(false);
+
+  // Step 1: Check auth once on mount
   useEffect(() => {
-    checkAuth();
-  }, []);
+    checkAuth().finally(() => {
+      setIsReady(true); // Mark ready even if auth fails
+    });
+  }, [checkAuth]);
 
-  //handle navigation based on the auth state
+  // Step 2: Redirect based ONLY on auth state when ready
   useEffect(() => {
-    const isAuthScreen = segments[0] === "(auth)";
-    const isSignedIn = user && token;
+    if (!isReady || isLoading) return;
 
-    if (!isSignedIn && !isAuthScreen) router.replace("/(auth)");
-    else if (isSignedIn && isAuthScreen) router.replace("/(tab)");
-  }, [user, token, segments]);
+    const isSignedIn = !!user && !!token;
 
+    if (isSignedIn) {
+      router.replace("/(tab)/create"); // or "/(tab)" or "/(tab)/home"
+    } else {
+      router.replace("/(auth)/login");
+    }
+  }, [isReady, isLoading, user, token, router]);
+
+  // Show loading until auth is fully checked
+  if (isLoading ) {
+    return (
+      <SafeAreaProvider>
+        <View className="flex-1 justify-center items-center bg-white">
+          <ActivityIndicator size="large" color="#4361EE" />
+        </View>
+      </SafeAreaProvider>
+    );
+  }
+
+  // Now safe to render the actual app
   return (
     <SafeAreaProvider>
       <SafeScreen>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(tab)" />
-        </Stack>
+        <Slot />
       </SafeScreen>
       <StatusBar style="dark" />
     </SafeAreaProvider>

@@ -29,18 +29,20 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setSetShowPassword] = useState(false);
-  const { isLoading, login, isCheckingAuth }: AuthLoginProps =
-    useAuthStore() as AuthLoginProps;
+  const { login, isLoading, authError, clearError } = useAuthStore();
 
-  const handleLogin = async () => {
-    const result = await login(email, password);
+ const handleLogin = async () => {
+  clearError(); // optional: clear old errors
+  const result = await login(email, password);
 
-    if (!result?.success) {
-      Alert.alert("Error", result.message);
-    }
-  };
+  if (!result.success) {
+    // Stay on login screen, error is already in authError
+    console.log("Login failed:", result.message);
+  }
+  // If success → RootLayout will auto-redirect to tabs
+};
 
-  if (isCheckingAuth) {
+  if (isLoading) {
     return (
       <View style={styles.container}>
         <Text>Loading...</Text>

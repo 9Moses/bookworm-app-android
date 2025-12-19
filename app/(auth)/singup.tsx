@@ -115,7 +115,7 @@ const Singup = () => {
                 </TouchableOpacity>
               </View>
             </View>
-            <TouchableOpacity style={styles.button} disabled={isLoading}>
+            <TouchableOpacity style={styles.button} disabled={isLoading} onPress={handleSignup}>
               {isLoading ? (
                 <ActivityIndicator size="small" color={COLORS.primary} />
               ) : (
